@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0","bitmath","simpy","pyvis"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysimosm"
+version = "0.0.1"
+authors = [
+  { name="Yifei Ren", email="ryf0510@live.com" },
+]
+description = "A Open Source MANO simulation and descriptor generating tool."
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ulfaric/py-osmgs"
+"Bug Tracker" = "https://github.com/ulfaric/py-osmgs/issues"

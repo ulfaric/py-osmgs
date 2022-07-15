@@ -1,11 +1,15 @@
+
+import sys
+sys.path.insert(0, "src\py-osmgs")
+
 from ipaddress import IPv4Address
 from bitmath import GiB
 from nested_lookup import nested_lookup
 import yaml
 from VDU import DISK_RBYTES
-
 from VNF import VNF
 
+# example - load a decriptor file
 new_vnf = VNF()
 with open("hackfest_multivdu_vnfd.yaml", "r") as description_file:
     vnf_description = yaml.load(description_file, yaml.Loader)
@@ -14,11 +18,17 @@ with open("hackfest_multivdu_vnfd.yaml", "r") as description_file:
     new_vnf.visualization()
 
 #new_vnf.addImage(id="ubuntu20.04", image_filepath="./ISO/ubuntu20.04")
+
+# add new external connection point
 new_vnf.add_ExternalConnectionPoint(id="ext_1")
 new_vnf.add_ExternalConnectionPoint(id="mgmt")
+
+# add new internalconnection point
 new_vnf.add_InternalConnectionPoint(
     id="internal", ip="192.168.0.1", network="192.168.0.0/24"
 )
+
+# add vdus
 new_vnf.add_VDU(
     id="Compute-node",
     num_vcpu=4,
@@ -44,6 +54,8 @@ new_vnf.add_VDU(
     image=["ubuntu20.04"],
     int_cps=["internal"],
 )
+
+# assign IP to a vdu interface, also shows how to capture exceptions
 try:
     new_vnf.assign_IP_vdu_interface(
         vdu_id="Compute-node",
@@ -52,7 +64,11 @@ try:
     )
 except Exception as e:
     print(e)
+
+# add a VDU telemetry
 new_vnf.add_vdu_telemetry(vdu_id="Storage-node", metrics=[DISK_RBYTES])
+
+# add a scaling apsect
 new_vnf.addScalingAspect(
     id="test",
     max_scale_level=1,
@@ -64,6 +80,8 @@ new_vnf.addScalingAspect(
     threshold_time=10,
     scale=1,
 )
+
+# save the new descriptor and generate a html visualization.
 with open(f"{new_vnf.id}_vnfd.yaml", "w") as yaml_file:
     yaml.dump(data=new_vnf.yaml_repr(),stream=yaml_file)
 new_vnf.visualization()

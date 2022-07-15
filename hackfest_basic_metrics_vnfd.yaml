@@ -1,0 +1,100 @@
+vnfd:
+  description: A basic VNF descriptor w/ one VDU and VIM metrics
+  df:
+  - id: default-df
+    instantiation-level:
+    - id: default-instantiation-level
+      vdu-level:
+      - number-of-instances: 1
+        vdu-id: hackfest_basic_metrics-VM
+    scaling-aspect:
+    - aspect-delta-details:
+        deltas:
+        - id: vdu_autoscale-delta
+          vdu-delta:
+          - id: hackfest_basic_metrics-VM
+            number-of-instances: 1
+      id: vdu_autoscale
+      max-scale-level: 1
+      name: vdu_autoscale
+      scaling-policy:
+      - cooldown-time: 120
+        name: cpu_util_above_threshold
+        scaling-criteria:
+        - name: cpu_util_above_threshold
+          scale-in-relational-operation: LT
+          scale-in-threshold: 10
+          scale-out-relational-operation: GT
+          scale-out-threshold: 60
+          vnf-monitoring-param-ref: vnf_cpu_util
+        scaling-type: automatic
+        threshold-time: 10
+    vdu-profile:
+    - id: hackfest_basic_metrics-VM
+      max-number-of-instances: 2
+      min-number-of-instances: 1
+  ext-cpd:
+  - id: vnf-cp0-ext
+    int-cpd:
+      cpd: vdu-eth0-int
+      vdu-id: hackfest_basic_metrics-VM
+  id: hackfest_basic_metrics-vnf
+  mgmt-cp: vnf-cp0-ext
+  product-name: hackfest_basic_metrics-vnf
+  sw-image-desc:
+  - id: ubuntu18.04
+    image: ubuntu18.04
+    name: ubuntu18.04
+  - id: ubuntu18.04-aws
+    name: ubuntu18.04-aws
+    image: ubuntu/images/hvm-ssd/ubuntu-artful-17.10-amd64-server-20180509
+    vim-type: aws
+  - id: ubuntu18.04-azure
+    name: ubuntu18.04-azure
+    image: Canonical:UbuntuServer:18.04-LTS:latest
+    vim-type: azure
+  - id: ubuntu18.04-gcp
+    name: ubuntu18.04-gcp
+    image: ubuntu-os-cloud:image-family:ubuntu-1804-lts
+    vim-type: gcp
+  vdu:
+  - cloud-init-file: cloud-config
+    id: hackfest_basic_metrics-VM
+    int-cpd:
+    - id: vdu-eth0-int
+      virtual-network-interface-requirement:
+      - name: vdu-eth0
+        virtual-interface:
+          type: PARAVIRT
+    monitoring-parameter:
+    - id: vnf_cpu_util
+      name: vnf_cpu_util
+      performance-metric: cpu_utilization
+    - id: vnf_memory_util
+      name: vnf_memory_util
+      performance-metric: average_memory_utilization
+    - id: vnf_packets_sent
+      name: vnf_packets_sent
+      performance-metric: packets_sent
+    - id: vnf_packets_received
+      name: vnf_packets_received
+      performance-metric: packets_received
+    name: hackfest_basic_metrics-VM
+    sw-image-desc: ubuntu18.04
+    alternative-sw-image-desc:
+    - ubuntu18.04-aws
+    - ubuntu18.04-azure
+    - ubuntu18.04-gcp
+    virtual-compute-desc: hackfest_basic_metrics-VM-compute
+    virtual-storage-desc:
+    - hackfest_basic_metrics-VM-storage
+  version: 1.0
+  virtual-compute-desc:
+  - id: hackfest_basic_metrics-VM-compute
+    virtual-cpu:
+      num-virtual-cpu: 1
+    virtual-memory:
+      size: 1.0
+  virtual-storage-desc:
+  - id: hackfest_basic_metrics-VM-storage
+    size-of-storage: 10

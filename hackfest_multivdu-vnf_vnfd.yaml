@@ -1,0 +1,256 @@
+vnfd:
+  df:
+  - id: default-df
+    instantiation-level:
+    - id: default-instantiation-level
+      vdu-level:
+      - number-of-instances: 1
+        vdu-id: mgmtVM
+      - number-of-instances: 1
+        vdu-id: dataVM
+      - number-of-instances: 1
+        vdu-id: Compute-node
+      - number-of-instances: 1
+        vdu-id: Storage-node
+      - number-of-instances: 1
+        vdu-id: Storage-node-backup
+    scaling-aspect:
+    - aspect-delta-details:
+        deltas:
+        - id: test
+          vdu-delta:
+          - id: Storage-node
+            number-of-instances: 1
+      id: test
+      max-scale-level: 1
+      name: test
+      scaling-policy:
+      - cooldown-time: 120
+        name: test
+        scaling-criteria:
+        - name: Storage-node_disk_read_bytes
+          scale-in-relational-operation: LT
+          scale-in-threshold: 100
+          scale-out-relational-operation: GT
+          scale-out-threshold: 300
+          vnf-monitoring-param-ref: Storage-node_disk_read_bytes
+        scaling-type: automatic
+        threshold-time: 10
+    vdu-profile:
+    - id: mgmtVM
+      min-number-of-instances: 1
+    - id: dataVM
+      min-number-of-instances: 1
+    - id: Compute-node
+      min-number-of-instances: 1
+    - id: Storage-node
+      min-number-of-instances: 1
+    - id: Storage-node-backup
+      min-number-of-instances: 1
+    virtual-link-profile:
+    - flavour:
+        id: internal
+        virtual-link-protocol-data:
+          l3-protocol-data:
+            cidr: 192.168.0.0/24
+            description: Internal Virtual Links
+            dhcp-enabled: true
+            gateway-ip: 192.168.0.1
+            ip-version: ipv4
+            name: internal
+  ext-cpd:
+  - id: vnf-mgmt-ext
+    int-cpd:
+      cpd: mgmtVM-eth0-int
+      vdu-id: mgmtVM
+  - id: vnf-data-ext
+    int-cpd:
+      cpd: dataVM-xe0-int
+      vdu-id: dataVM
+  - id: ext_1
+    int-cpd:
+      cpd: Compute-node_int_0
+      vdu-id: Compute-node
+  - id: mgmt
+    int-cpd:
+      cpd: Compute-node_int_1
+      vdu-id: Compute-node
+  id: hackfest_multivdu-vnf
+  mgmt-cp: vnf-mgmt-ext
+  product-name: hackfest_multivdu-vnf
+  sw-image-desc:
+  - id: ubuntu20.04
+    image: ubuntu20.04
+    name: ubuntu20.04
+  - id: ubuntu20.04-aws
+    image: ubuntu/images/hvm-ssd/ubuntu-artful-17.10-amd64-server-20180509
+    name: ubuntu20.04-aws
+    vim_type: aws
+  - id: ubuntu20.04-azure
+    image: Canonical:0001-com-ubuntu-server-focal:20_04-lts:latest
+    name: ubuntu20.04-azure
+    vim_type: azure
+  - id: ubuntu20.04-gcp
+    image: ubuntu-os-cloud:image-family:ubuntu-2004-lts
+    name: ubuntu20.04-gcp
+    vim_type: gcp
+  vdu:
+  - alternative-sw-image-desc:
+    - ubuntu20.04-aws
+    - ubuntu20.04-azure
+    id: mgmtVM
+    int-cpd:
+    - id: mgmtVM-eth0-int
+      virtual-network-interface-requirement:
+      - name: mgmtVM-eth0
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    - id: mgmtVM-eth1-int
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: mgmtVM-eth1
+        position: 2
+        virtual-interface:
+          type: PARAVIRT
+    sw-image-desc: ubuntu20.04
+    virtual-compute-desc: mgmtVM-compute
+    virtual-storage-desc:
+    - mgmtVM-storage
+  - alternative-sw-image-desc:
+    - ubuntu20.04-aws
+    - ubuntu20.04-azure
+    id: dataVM
+    int-cpd:
+    - id: dataVM-eth0-int
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: dataVM-eth0
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    - id: dataVM-xe0-int
+      virtual-network-interface-requirement:
+      - name: dataVM-xe0
+        position: 2
+        virtual-interface:
+          type: PARAVIRT
+    sw-image-desc: ubuntu20.04
+    virtual-compute-desc: dataVM-compute
+    virtual-storage-desc:
+    - dataVM-storage
+  - id: Compute-node
+    int-cpd:
+    - id: Compute-node_int_0
+      virtual-network-interface-requirement:
+      - name: Compute-node_int_0
+        position: 0
+        virtual-interface:
+          type: PARAVIRT
+    - id: Compute-node_int_1
+      virtual-network-interface-requirement:
+      - name: Compute-node_int_1
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    - id: Compute-node_int_2
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - ip-address: 192.168.0.128
+        name: Compute-node_int_2
+        position: 2
+        virtual-interface:
+          type: PARAVIRT
+    - id: Compute-node_int_3
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: Compute-node_int_3
+        position: 3
+        virtual-interface:
+          type: PARAVIRT
+    sw-image-desc: ubuntu20.04
+    virtual-compute-desc: Compute-node-compute
+    virtual-storage-desc:
+    - Compute-node-storage
+  - id: Storage-node
+    int-cpd:
+    - id: Storage-node_int_0
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: Storage-node_int_0
+        position: 0
+        virtual-interface:
+          type: PARAVIRT
+    - id: Storage-node_int_1
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: Storage-node_int_1
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    monitoring-parameter:
+    - id: Storage-node_disk_read_bytes
+      name: Storage-node_disk_read_bytes
+      performance-metric: disk_read_bytes
+    sw-image-desc: ubuntu20.04
+    virtual-compute-desc: Storage-node-compute
+    virtual-storage-desc:
+    - Storage-node-storage
+  - id: Storage-node-backup
+    int-cpd:
+    - id: Storage-node-backup_int_0
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: Storage-node-backup_int_0
+        position: 0
+        virtual-interface:
+          type: PARAVIRT
+    - id: Storage-node-backup_int_1
+      int-virtual-link-desc: internal
+      virtual-network-interface-requirement:
+      - name: Storage-node-backup_int_1
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    sw-image-desc: ubuntu20.04
+    virtual-compute-desc: Storage-node-backup-compute
+    virtual-storage-desc:
+    - Storage-node-backup-storage
+  version: 1.0
+  virtual-compute-desc:
+  - id: mgmtVM-compute
+    virtual-cpu:
+      num-virtual-cpu: 1
+    virtual-memory:
+      size: 1.0
+  - id: dataVM-compute
+    virtual-cpu:
+      num-virtual-cpu: 1
+    virtual-memory:
+      size: 1.0
+  - id: Compute-node-compute
+    virtual-cpu:
+      num-virtual-cpu: 4
+    virtual-memory:
+      size: 16.0
+  - id: Storage-node-compute
+    virtual-cpu:
+      num-virtual-cpu: 4
+    virtual-memory:
+      size: 16.0
+  - id: Storage-node-backup-compute
+    virtual-cpu:
+      num-virtual-cpu: 4
+    virtual-memory:
+      size: 16.0
+  virtual-storage-desc:
+  - id: mgmtVM-storage
+    size-of-storage: 10.0
+  - id: dataVM-storage
+    size-of-storage: 10.0
+  - id: Compute-node-storage
+    size-of-storage: 64.0
+  - id: Storage-node-storage
+    size-of-storage: 64.0
+  - id: Storage-node-backup-storage
+    size-of-storage: 64.0
